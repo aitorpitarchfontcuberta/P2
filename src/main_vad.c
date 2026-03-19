@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   FILE *vadfile;
   int n_read = 0, i;
 
-  VAD_DATA *vad_data;
+  VAD_DATA *vad_data; 
   VAD_STATE state, last_state;
 
   float *buffer, *buffer_zeros;

@@ -10,7 +10,7 @@ const char *state2str(VAD_STATE st);
 
 /* TODO: add the variables needed to control the VAD 
    (counts, thresholds, etc.) */
-
+ 
 typedef struct {
   VAD_STATE state;
   float sampling_rate;
