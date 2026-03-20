@@ -10,7 +10,7 @@ set -o pipefail
 # Write here the name and path of your program and database
 DIR_P2=$HOME/PAV/P2
 DB=$DIR_P2/db.v4
-CMD=$DIR_P2/bin/vad
+CMD=$DIR_P2/bin/vad 
 
 for filewav in $DB/*/*wav; do
 #    echo
