@@ -25,7 +25,7 @@ Features compute_features(const float *x, int N) {
   return feat;
 }
 
-VAD_DATA *vad_open(float rate) {
+VAD_DATA *vad_open(float rate, float alpha0, float alpha1, float alpha2) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state       = ST_INIT;
   vad_data->sampling_rate = rate;
@@ -33,6 +33,9 @@ VAD_DATA *vad_open(float rate) {
   vad_data->sum_power     = 0.0F;
   vad_data->init_count    = 0;
   vad_data->frame_count   = 0;
+  vad_data->alpha0        = alpha0;
+  vad_data->alpha1        = alpha1;
+  vad_data->alpha2        = alpha2;
   vad_data->k0 = vad_data->k1 = vad_data->k2 = 0.0F;
   return vad_data;
 }
@@ -50,7 +53,7 @@ unsigned int vad_frame_size(VAD_DATA *vad_data) {
   return vad_data->frame_length;
 }
 
-VAD_STATE vad(VAD_DATA *vad_data, float *x, float alpha0) {
+VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   Features f = compute_features(x, vad_data->frame_length);
   vad_data->last_feature = f.p;
@@ -64,9 +67,9 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x, float alpha0) {
 
     if (vad_data->init_count >= N_INIT) {
       /* k0 = potencia media inicial en dB */
-      vad_data->k0 = 10.0F * log10f(vad_data->sum_power / N_INIT);
-      vad_data->k1 = vad_data->k0 + ALPHA1;
-      vad_data->k2 = vad_data->k1 + ALPHA2;
+      vad_data->k0 = 10.0F * log10f(vad_data->sum_power / N_INIT) + vad_data->alpha0;
+      vad_data->k1 = vad_data->k0 + vad_data->alpha1;
+      vad_data->k2 = vad_data->k1 + vad_data->alpha2;
       vad_data->state = ST_SILENCE;
     }
     return ST_SILENCE; /* durante la fase de init, consideramos que no hay voz */

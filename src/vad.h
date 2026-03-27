@@ -21,10 +21,15 @@ typedef struct {
   unsigned int frame_length;
   float     last_feature;
 
+  /* parámetros de umbral */
+  float     alpha0;  /* parámetro de optimización */
+  float     alpha1;  /* dB sobre k0 para entrar en maybe_voice */
+  float     alpha2;  /* dB adicionales para confirmar voz */
+
   /* umbrales */
   float     k0;   /* nivel de ruido de fondo */
-  float     k1;   /* k0 + ALPHA1: umbral maybe_voice */
-  float     k2;   /* k1 + ALPHA2: umbral confirmación voz */
+  float     k1;   /* k0 + alpha1: umbral maybe_voice */
+  float     k2;   /* k1 + alpha2: umbral confirmación voz */
 
   /* acumulador para el cálculo de k0 */
   float     sum_power;
@@ -34,9 +39,9 @@ typedef struct {
   int       frame_count; /* tramas en estado maybe actual */
 } VAD_DATA;
 
-VAD_DATA    *vad_open(float sampling_rate);
+VAD_DATA    *vad_open(float sampling_rate, float alpha0, float alpha1, float alpha2);
 unsigned int vad_frame_size(VAD_DATA *);
-VAD_STATE    vad(VAD_DATA *vad_data, float *x, float alpha0);
+VAD_STATE    vad(VAD_DATA *vad_data, float *x);
 VAD_STATE    vad_close(VAD_DATA *vad_data);
 void         vad_show_state(const VAD_DATA *, FILE *);
 

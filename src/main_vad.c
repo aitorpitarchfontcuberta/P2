@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  vad_data = vad_open(sf_info.samplerate);
+  vad_data = vad_open(sf_info.samplerate, alpha0, ALPHA1, ALPHA2);
   frame_size   = vad_frame_size(vad_data);
   buffer       = (float *) malloc(frame_size * sizeof(float));
   buffer_zeros = (float *) malloc(frame_size * sizeof(float));
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
   for (t = last_t = 0; ; t++) {
     if ((n_read = sf_read_float(sndfile_in, buffer, frame_size)) != frame_size) break;
 
-    state = vad(vad_data, buffer, alpha0);
+    state = vad(vad_data, buffer);
     if (verbose & DEBUG_VAD) vad_show_state(vad_data, stdout);
 
     /* Escribir en output_wav: ceros si silencio, señal original si voz */
