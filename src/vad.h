@@ -9,11 +9,11 @@ typedef enum {
 
 const char *state2str(VAD_STATE st);
 
-#define N_INIT       15   /* tramas iniciales para calcular k0 */
-#define ALPHA1       2.5F /* dB sobre k0 para entrar en maybe_voice */
+#define N_INIT       9    /* tramas iniciales para calcular k0 (optimizado: 15→9) */
+#define ALPHA1       2.56F /* dB sobre k0 para entrar en maybe_voice (optimizado: 2.5→2.56) */
 #define ALPHA2       2.0F /* dB adicionales para confirmar voz */
 #define MIN_VOICE_F  2     /* tramas mínimas para confirmar voz */
-#define MIN_SIL_F    25   /* tramas mínimas para confirmar silencio */
+#define MIN_SIL_F    22   /* tramas mínimas para confirmar silencio (optimizado: 25→22) */
 
 typedef struct {
   VAD_STATE state;
