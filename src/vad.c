@@ -16,12 +16,14 @@ const char *state2str(VAD_STATE st) {
 }
 
 typedef struct {
-  float p;   /* potencia en dB */
+  float p;    /* potencia en dB */
+  float zcr;  /* zero-crossing rate normalizada [0,1] */
 } Features;
 
-Features compute_features(const float *x, int N) {
+Features compute_features(const float *x, int N, float sampling_rate) {
   Features feat;
   feat.p = compute_power(x, N);
+  feat.zcr = compute_zcr(x, N, sampling_rate) / (sampling_rate / 2.0f);
   return feat;
 }
 
@@ -55,7 +57,7 @@ unsigned int vad_frame_size(VAD_DATA *vad_data) {
 
 VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
-  Features f = compute_features(x, vad_data->frame_length);
+  Features f = compute_features(x, vad_data->frame_length, vad_data->sampling_rate);
   vad_data->last_feature = f.p;
 
   switch (vad_data->state) {
@@ -76,14 +78,18 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_SILENCE:
-    if (f.p > vad_data->k1) {
+    /* Umbral dinámico: ZCR alta (voz) reduce umbral de potencia */
+    float dyn_threshold = vad_data->k1 - (0.3f * f.zcr);
+    if (f.p > dyn_threshold) {
       vad_data->state = ST_MAYBE_VOICE;
       vad_data->frame_count = 1;
     }
     break;
 
   case ST_MAYBE_VOICE:
-    if (f.p > vad_data->k1) {
+    /* Umbral dinámico: ZCR ayuda a confirmar voz */
+    dyn_threshold = vad_data->k1 - (0.3f * f.zcr);
+    if (f.p > dyn_threshold) {
       vad_data->frame_count++;
       if (vad_data->frame_count >= MIN_VOICE_F) {
         vad_data->state = ST_VOICE;
@@ -97,14 +103,16 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
     break;
 
   case ST_VOICE:
-    if (f.p < vad_data->k1) {
+    dyn_threshold = vad_data->k1 - (0.3f * f.zcr);
+    if (f.p < dyn_threshold) {
       vad_data->state = ST_MAYBE_SILENCE;
       vad_data->frame_count = 1;
     }
     break;
 
   case ST_MAYBE_SILENCE:
-    if (f.p < vad_data->k1) {
+    dyn_threshold = vad_data->k1 - (0.3f * f.zcr);
+    if (f.p < dyn_threshold) {
       vad_data->frame_count++;
       if (vad_data->frame_count >= MIN_SIL_F) {
         vad_data->state = ST_SILENCE;
