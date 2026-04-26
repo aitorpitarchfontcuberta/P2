@@ -1,5 +1,5 @@
 #!/bin/bash
-alpha0=$1
+alpha0=1.04
 
 # Be sure that this file has execution permissions:
 # Use the nautilus explorer or chmod +x run_vad.sh
@@ -10,10 +10,6 @@ set -o pipefail
 
 # Write here the name and path of your program and database
 
-#Aitor
-#DIR_P2=/mnt/c/Users/Aitor/Desktop/PAV/P2
-
-#Bernat
 DIR_P2=$HOME/PAV/P2
 
 DB=$DIR_P2/db.v4
