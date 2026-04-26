@@ -149,15 +149,29 @@ Ejercicios
 - Etiquete manualmente los segmentos de voz y silencio del fichero grabado al efecto. Inserte, a
   continuación, una captura de `wavesurfer` en la que se vea con claridad la señal temporal, el contorno de
   potencia y la tasa de cruces por cero, junto con el etiquetado manual de los segmentos.
+  <img width="1920" height="591" alt="image" src="https://github.com/user-attachments/assets/d23a5bbd-62d0-4fa1-be54-1efadaad59d1" />
+
+
 
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
 
   * Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para
     estar seguros de que un segmento de señal se corresponde con voz.
 
+    
+    Un incremento de entre 10 dB y 15 dB respecto al nivel de silencio inicial es adecuado para confirmar con seguridad que un segmento corresponde a voz. Esto evita falsos     positivos causados por pequeñas fluctuaciones del ruido de fondo, pero es lo suficientemente sensible para captar el inicio de la fonación.
+
   * Duración mínima razonable de los segmentos de voz y silencio.
 
+    Segmentos de voz: Alrededor de 20 a 30 ms. Esto es necesario porque existen fonemas muy cortos que no deben ser ignorados.
+
+    Segmentos de silencio: Alrededor de 200 a 250 ms. Exigimos esta duración mínima para no clasificar como "silencio" las pausas breves naturales que hacemos al hablar         y evitar que la señal de voz se corte de forma poco natural.
+
   * ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
+
+    En los momentos donde se pronuncian sonidos fricativos o sordos (como la /s/ o la /f/), la potencia de la señal es muy baja y podría confundirse con silencio. Sin
+    embargo, en esos mismos instantes exactos, la ZCR presenta picos muy altos (debido a la alta frecuencia del sonido). Por el contrario, en los sonidos sonoros (vocales), 
+    la potencia es máxima y la ZCR se mantiene baja. Por tanto, usar ambas características juntas mejora drásticamente la detección de la voz.
 
 
 ### Desarrollo del detector de actividad vocal
@@ -167,12 +181,21 @@ Ejercicios
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
-
+<img width="1920" height="355" alt="image" src="https://github.com/user-attachments/assets/f794e606-ea2d-4d6d-a9be-7b638098294d" />
+(arriba del todo: etiquetas manuals, medio: etiquetas del archivo .vad)
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
+
+La principal discrepancia técnica del archivo automático (.vad) frente a la señal real se da en los finales de palabra: el detector tarda un poco más en realizar la transición hacia la etiqueta de silencio (S). Este retardo es un comportamiento esperado y se debe al parámetro MIN_SIL_F de nuestra máquina de estados, que obliga al sistema a procesar un número mínimo de tramas consecutivas de baja energía para confirmar el silencio absoluto, evitando así cortes antinaturales en medio de la locución.
+
+Nota: se ve mucho mas desplazado de lo que realmente está, se debe a un desajuste del zoom de wavesurfer que no logro corregir, adjunto imagen en la que se puede entender mejor:
+<img width="408" height="284" alt="image" src="https://github.com/user-attachments/assets/bcd748d5-3605-4166-b124-233ad7059eef" />
+Las dos lineas naranjas en las etiquetas superiores se me generan al seleccionar en el panel de la señal una sección de silencio. Como vemos, en el programa en si vemos un desfase temporal por lo que por eso a simple vista, parece que el programa lo ha caluclado mal.
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
   el resumen).
+  <img width="1015" height="111" alt="image" src="https://github.com/user-attachments/assets/36002cf7-84f4-4da1-aa18-392b43249411" />
+
 
 
 ### Trabajos de ampliación
